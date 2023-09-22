@@ -67,11 +67,18 @@ server.put("/api/dogs/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { name, weight } = req.body;
+    if (!name || !weight) {
+      res.status(422).json({ message: "Dogs need name and weight" });
+      return;
+    }
     const updatedDog = await Dog.update(id, { name, weight });
-
-    res
-      .status(200)
-      .json({ message: "dog was updated successfully", data: updatedDog });
+    if (!updatedDog) {
+      res.status(404).json(`dog ${id} not found`);
+    } else {
+      res
+        .status(200)
+        .json({ message: "dog was updated successfully", data: updatedDog });
+    }
   } catch (err) {
     res.status(500).json({ message: `Error updating dog ${err.message}` });
   }
